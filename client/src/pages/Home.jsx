@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/navbar";
+import logoImg from "../assets/images/logo.png";
 
 export default function Home() {
   const [started, setStarted] = useState(false);
@@ -29,23 +30,25 @@ export default function Home() {
         <div className="hero-visual" />
 
         <div className="hero-content">
-          <h1>Prepare students for real industry with smart AI guidance</h1>
+          <div className="home-logo-wrap">
+            <img src={logoImg} alt="PrepNova" className="home-logo" />
+          </div>
+          <h1>Prepare students for real industry with <span className="gradient-text">smart AI guidance</span></h1>
           <p>
-            Virtual Industry helps students reduce the skills gap between college learning
+            PrepNova helps students reduce the skills gap between college learning
             and industry expectations. Analyze your resume, improve your technical profile,
             prepare for interviews, and track your growth in one platform.
           </p>
           <div className="hero-start-wrap">
             <button className="btn btn-start" onClick={startApp}>
-              Start
+              🚀 Get Started
             </button>
             {!started && (
               <p className="start-note">
-                Press Start to unlock all sidebar features and begin your journey.
+                Press Start to unlock all features and begin your journey.
               </p>
             )}
           </div>
-
         </div>
 
         <div className="hero-box">
@@ -79,6 +82,7 @@ export default function Home() {
 
         <div className="features-grid">
           <div className="card feature-card">
+            <span className="feature-icon">📄</span>
             <h3>Resume Analyzer</h3>
             <p>
               Upload your resume and get a score, strengths, weaknesses, and suggestions
@@ -87,6 +91,7 @@ export default function Home() {
           </div>
 
           <div className="card feature-card">
+            <span className="feature-icon">🐙</span>
             <h3>GitHub Review</h3>
             <p>
               Get AI feedback on code quality, repository structure, and project readiness.
@@ -94,6 +99,7 @@ export default function Home() {
           </div>
 
           <div className="card feature-card">
+            <span className="feature-icon">🗣️</span>
             <h3>Voice Coach</h3>
             <p>
               Practice answers out loud and receive coaching on pace, clarity, and confidence.
@@ -101,6 +107,7 @@ export default function Home() {
           </div>
 
           <div className="card feature-card">
+            <span className="feature-icon">💬</span>
             <h3>Communication Practice</h3>
             <p>
               Improve professional communication with guided sessions and feedback.
@@ -108,6 +115,7 @@ export default function Home() {
           </div>
 
           <div className="card feature-card">
+            <span className="feature-icon">🎙️</span>
             <h3>Interview Preparation</h3>
             <p>
               Practice interview rounds and improve confidence, speaking clarity, and
@@ -116,6 +124,7 @@ export default function Home() {
           </div>
 
           <div className="card feature-card">
+            <span className="feature-icon">📊</span>
             <h3>Career Dashboard</h3>
             <p>
               Keep all your analysis records, progress, and learning direction in one
@@ -124,6 +133,7 @@ export default function Home() {
           </div>
 
           <div className="card feature-card">
+            <span className="feature-icon">🥽</span>
             <h3>VR Interview Experience</h3>
             <p>
               Step into a fully immersive virtual interview room with 3D avatar interviewer,

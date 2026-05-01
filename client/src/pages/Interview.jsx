@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/navbar";
+import { showToast } from "../components/Toast";
 
 export default function Interview() {
   const questions = [
@@ -16,6 +17,7 @@ export default function Interview() {
   const [answers, setAnswers] = useState(Array(questions.length).fill(""));
   const [submitted, setSubmitted] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (index, value) => {
     const updated = [...answers];
@@ -24,10 +26,17 @@ export default function Interview() {
   };
 
   const handleSubmit = async () => {
+    const emptyCount = answers.filter((a) => !a.trim()).length;
+    if (emptyCount === questions.length) {
+      showToast("Please answer at least one question before submitting.", "warning");
+      return;
+    }
+
     const studentUser = JSON.parse(localStorage.getItem("studentUser"));
     const generatedFeedback =
       "Good start. Your answers should be more structured, confident, and specific. Try adding real project examples, measurable achievements, and clearer introductions.";
 
+    setLoading(true);
     try {
       await axios.post("http://localhost:3001/api/interviews", {
         userEmail: studentUser?.email || "guest@example.com",
@@ -38,8 +47,14 @@ export default function Interview() {
 
       setFeedback(generatedFeedback);
       setSubmitted(true);
+      showToast("Interview result saved successfully!", "success");
     } catch (error) {
-      alert(error.response?.data?.error || "Failed to save interview result");
+      showToast(
+        error.response?.data?.message || error.response?.data?.error || "Failed to save interview result. Please try again.",
+        "error"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,7 +64,7 @@ export default function Interview() {
 
       <section className="section page-hero">
         <div className="hero-content">
-          <div className="label-pill">Practice & Improve</div>
+          <div className="label-pill">🎙️ Practice & Improve</div>
           <h1 className="section-title">AI Interview Practice</h1>
           <p className="section-subtitle">
             Practice common interview questions, capture your answers, and
@@ -94,8 +109,8 @@ export default function Interview() {
             </div>
           ))}
 
-          <button className="btn" onClick={handleSubmit}>
-            Submit Interview
+          <button className="btn" onClick={handleSubmit} disabled={loading}>
+            {loading ? "Submitting..." : "Submit Interview"}
           </button>
         </div>
 

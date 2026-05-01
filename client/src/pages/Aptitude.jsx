@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import Navbar from "../components/navbar";
+import { showToast } from "../components/Toast";
 
 export default function Aptitude() {
   const questions = [
@@ -18,8 +19,15 @@ export default function Aptitude() {
 
   const [selected, setSelected] = useState({});
   const [score, setScore] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const submitTest = async () => {
+    const answeredCount = Object.keys(selected).length;
+    if (answeredCount === 0) {
+      showToast("Please answer at least one question before submitting.", "warning");
+      return;
+    }
+
     let totalScore = 0;
     questions.forEach((q, index) => {
       if (selected[index] === q.answer) {
@@ -29,6 +37,7 @@ export default function Aptitude() {
 
     const studentUser = JSON.parse(localStorage.getItem("studentUser"));
 
+    setLoading(true);
     try {
       await axios.post("http://localhost:3001/api/aptitude", {
         userEmail: studentUser?.email || "guest@example.com",
@@ -36,8 +45,14 @@ export default function Aptitude() {
         total: questions.length,
       });
       setScore(totalScore);
+      showToast(`Test completed! You scored ${totalScore}/${questions.length}`, "success");
     } catch (error) {
-      alert(error.response?.data?.error || "Failed to save aptitude result");
+      showToast(
+        error.response?.data?.message || error.response?.data?.error || "Failed to save aptitude result. Please try again.",
+        "error"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,7 +62,7 @@ export default function Aptitude() {
 
       <section className="section page-hero">
         <div className="hero-content">
-          <div className="label-pill">Quant Skills</div>
+          <div className="label-pill">🧠 Quant Skills</div>
           <h1 className="section-title">Aptitude Test</h1>
           <p className="section-subtitle">
             Practice quick aptitude questions designed for placement readiness and
@@ -83,7 +98,7 @@ export default function Aptitude() {
               {q.options.map((option, i) => (
                 <label
                   key={i}
-                  style={{ display: "block", marginBottom: "8px", color: "#4f6f8f" }}
+                  className={`aptitude-option ${selected[index] === option ? "selected" : ""}`}
                 >
                   <input
                     type="radio"
@@ -91,15 +106,14 @@ export default function Aptitude() {
                     value={option}
                     checked={selected[index] === option}
                     onChange={() => setSelected({ ...selected, [index]: option })}
-                    style={{ marginRight: "8px" }}
                   />
-                  {option}
+                  <span className="option-text">{option}</span>
                 </label>
               ))}
             </div>
           ))}
-          <button className="btn" onClick={submitTest}>
-            Submit Test
+          <button className="btn" onClick={submitTest} disabled={loading}>
+            {loading ? "Submitting..." : "Submit Test"}
           </button>
         </div>
 
