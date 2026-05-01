@@ -8,9 +8,13 @@ router.post("/", authMiddleware, async (req, res) => {
   try {
     const { userEmail, score, total } = req.body;
 
+    console.log("Aptitude POST request from:", userEmail);
+
     if (!userEmail || typeof score !== "number" || typeof total !== "number") {
       return res.status(400).json({ error: "Missing or invalid required fields" });
     }
+
+    console.log("Saving aptitude result:", { userEmail, score, total });
 
     const saved = await AptitudeResult.create({
       userEmail: userEmail.toLowerCase(),
@@ -18,13 +22,14 @@ router.post("/", authMiddleware, async (req, res) => {
       total,
     });
 
+    console.log("Aptitude result saved successfully:", saved._id);
     res.status(201).json({
       message: "Aptitude result saved",
       result: saved,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to save aptitude result" });
+    console.error("Aptitude POST error:", error);
+    res.status(500).json({ error: "Failed to save aptitude result", details: error.message });
   }
 });
 
@@ -34,13 +39,27 @@ router.get("/:email", async (req, res) => {
       return res.status(400).json({ error: "Email parameter is required" });
     }
 
-    const data = await AptitudeResult.find({
-      userEmail: req.params.email.toLowerCase(),
-    }).sort({ createdAt: -1 });
+    console.log("Fetching aptitude history for:", req.params.email);
 
+    const queryTimeout = new Promise((resolve) => {
+      setTimeout(() => {
+        console.log("Aptitude query timeout!");
+        resolve([]);
+      }, 5000);
+    });
+
+    const data = await Promise.race([
+      AptitudeResult.find({
+        userEmail: req.params.email.toLowerCase(),
+      }).sort({ createdAt: -1 }).maxTimeMS(4000).exec(),
+      queryTimeout,
+    ]);
+
+    console.log("Aptitude records found:", data.length);
     res.json({ data });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch aptitude history" });
+    console.error("Aptitude fetch error:", error);
+    res.status(500).json({ error: "Failed to fetch aptitude history", details: error.message });
   }
 });
 
