@@ -264,7 +264,7 @@ html, body, #root {
   padding-left: 270px !important;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 900px) { 
   .sidebar {
     position: relative;
     width: 100%;
@@ -304,4 +304,11 @@ html, body, #root {
   .hero h1 {
     font-size: 32px;
   }
+}
+/* ONLY HOME PAGE FIX */
+.home-content {
+  margin-left: 250px; /* sidebar width */
+  width: calc(100% - 250px);
+  padding: 40px;
+  box-sizing: border-box;
 }
