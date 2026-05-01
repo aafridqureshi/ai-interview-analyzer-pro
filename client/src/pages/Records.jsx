@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/navbar";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 export default function Records() {
   const studentUser = JSON.parse(localStorage.getItem("studentUser")) || {};
   const email = studentUser.email;
@@ -19,24 +21,31 @@ export default function Records() {
     }
 
     try {
-      const token = localStorage.getItem("token");
       const [resumeRes, interviewRes, aptitudeRes, codingRes] = await Promise.all([
-        axios.get(`http://localhost:3001/analyses/${email}`),
-        axios.get(`http://localhost:3001/api/interviews/${email}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        axios.get(`${API_URL}/analyses/${email}`).catch(err => {
+          console.error("Resume fetch error:", err.message);
+          return { data: { data: [] } };
         }),
-        axios.get(`http://localhost:3001/api/aptitude/${email}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        axios.get(`${API_URL}/api/interviews/${email}`).catch(err => {
+          console.error("Interview fetch error:", err.message);
+          return { data: { data: [] } };
         }),
-        axios.get(`http://localhost:3001/api/coding/${email}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        axios.get(`${API_URL}/api/aptitude/${email}`).catch(err => {
+          console.error("Aptitude fetch error:", err.message);
+          return { data: { data: [] } };
+        }),
+        axios.get(`${API_URL}/api/coding/${email}`).catch(err => {
+          console.error("Coding fetch error:", err.message);
+          return { data: { data: [] } };
         }),
       ]);
 
       const normalize = (payload) => {
         if (!payload) return [];
+        // Handle wrapped format: { data: [...] }
+        if (payload.data && Array.isArray(payload.data)) return payload.data;
+        // Handle direct array format
         if (Array.isArray(payload)) return payload;
-        if (Array.isArray(payload.data)) return payload.data;
         return [];
       };
 

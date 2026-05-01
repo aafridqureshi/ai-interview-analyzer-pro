@@ -195,7 +195,24 @@ app.post("/upload", upload.single("resume"), async (req, res) => {
       return res.status(400).json({ success: false, error: "No file uploaded" });
     }
 
+    // Validate file type
+    const allowedMimes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    const ext = (req.file.originalname.split(".").pop() || "").toLowerCase();
+    if (!allowedMimes.includes(req.file.mimetype) && !["pdf", "docx"].includes(ext)) {
+      return res.status(400).json({ success: false, error: "Only PDF and DOCX files are supported" });
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (req.file.size > maxSize) {
+      return res.status(400).json({ success: false, error: "File size must be less than 10MB" });
+    }
+
     const userEmail = req.body.userEmail || "guest@example.com";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail) && userEmail !== "guest@example.com") {
+      return res.status(400).json({ success: false, error: "Invalid email format" });
+    }
+
     let resumeText;
 
     try {
@@ -284,7 +301,11 @@ app.get("/analyses", async (req, res) => {
   if (!email) {
     return res
       .status(400)
-      .json({ success: false, error: "Email query parameter is required" });
+      .json({ error: "Email query parameter is required" });
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: "Invalid email format" });
   }
 
   try {
@@ -292,23 +313,29 @@ app.get("/analyses", async (req, res) => {
       userEmail: email.toLowerCase(),
     }).sort({ createdAt: -1 });
 
-    res.json({ success: true, data: analyses });
+    res.json({ data: analyses });
   } catch (error) {
     console.error("Fetch analyses error:", error);
-    res.status(500).json({ success: false, error: "Failed to fetch analyses" });
+    res.status(500).json({ error: "Failed to fetch analyses" });
   }
 });
 
 app.get("/analyses/:email", async (req, res) => {
   try {
+    const email = req.params.email;
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
     const analyses = await Analysis.find({
-      userEmail: req.params.email.toLowerCase(),
+      userEmail: email.toLowerCase(),
     }).sort({ createdAt: -1 });
 
-    res.json({ success: true, data: analyses });
+    res.json({ data: analyses });
   } catch (error) {
     console.error("Fetch analyses error:", error);
-    res.status(500).json({ success: false, error: "Failed to fetch analyses" });
+    res.status(500).json({ error: "Failed to fetch analyses" });
   }
 });
 

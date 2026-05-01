@@ -3,6 +3,8 @@ import axios from "axios";
 import Loader from "./Loader";
 import ResultCard from "./ResultCard";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 export default function FileUpload({ onSaved }) {
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
@@ -24,7 +26,7 @@ export default function FileUpload({ onSaved }) {
       const studentUser = JSON.parse(localStorage.getItem("studentUser") || "null");
       formData.append("userEmail", studentUser?.email || "guest@example.com");
 
-      const res = await axios.post("http://localhost:3001/upload", formData);
+      const res = await axios.post(`${API_URL}/upload`, formData);
       const resultData = res.data?.result || res.data?.data?.result;
 
       if (!resultData) {
