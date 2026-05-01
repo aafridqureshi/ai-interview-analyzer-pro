@@ -196,11 +196,20 @@ app.post("/upload", upload.single("resume"), async (req, res) => {
     }
 
     // Validate file type
-    const allowedMimes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
-    const ext = (req.file.originalname.split(".").pop() || "").toLowerCase();
-    if (!allowedMimes.includes(req.file.mimetype) && !["pdf", "docx"].includes(ext)) {
-      return res.status(400).json({ success: false, error: "Only PDF and DOCX files are supported" });
-    }
+const allowedMimes = [
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+];
+
+if (!allowedMimes.includes(req.file.mimetype) && !["pdf", "docx", "jpg", "jpeg", "png"].includes(ext)) {
+  return res.status(400).json({
+    success: false,
+    error: "Only PDF, DOCX, JPG, JPEG and PNG files are supported",
+  });
+}
 
     // Validate file size (max 10MB)
     const maxSize = 10 * 1024 * 1024;
@@ -221,16 +230,14 @@ app.post("/upload", upload.single("resume"), async (req, res) => {
       console.error("Resume extraction failed:", ex.message || ex);
       return res.status(400).json({
         success: false,
-        error:
-          "Could not extract text from the uploaded resume. Please upload a PDF or DOCX file.",
+        error:"Could not extract text from this file. For image resumes, OCR is not connected yet. Please upload PDF/DOCX or add OCR.",
       });
     }
 
     if (!resumeText || !resumeText.trim()) {
       return res.status(400).json({
         success: false,
-        error:
-          "Could not extract text from the uploaded resume. Please upload a PDF or DOCX file.",
+        error:"Could not extract text from this file. For image resumes, OCR is not connected yet. Please upload PDF/DOCX or add OCR.",
       });
     }
 

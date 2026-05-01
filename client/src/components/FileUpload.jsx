@@ -50,12 +50,12 @@ export default function FileUpload({ onSaved }) {
 
   return (
     <div className="card upload-box">
-      <input
-        type="file"
-        className="file-input"
-        accept=".pdf,.docx"
-        onChange={(e) => setFile(e.target.files[0])}
-      />
+<input
+  type="file"
+  className="file-input"
+  accept=".pdf,.docx,.jpg,.jpeg,.png"
+  onChange={(e) => setFile(e.target.files[0])}
+/>
 
       <button className="btn" onClick={handleUpload}>
         Upload and Analyze
