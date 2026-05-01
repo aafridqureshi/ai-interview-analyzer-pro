@@ -1,22 +1,28 @@
 import { Link, useLocation } from "react-router-dom";
 import logoImg from "../assets/images/logo.png";
+import { NavLink } from "react-router-dom";
 
 export default function Navbar() {
-  const location = useLocation();
-  const token = localStorage.getItem("token");
-  const started = localStorage.getItem("appStarted") === "true";
-  const authenticated = Boolean(token);
-
-  const activeLink = (path) => location.pathname === path;
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("studentUser");
-    window.location.href = "/login";
-  };
+  const links = [
+    { to: "/", label: "Home" },
+    { to: "/resume", label: "Resume Analyzer" },
+    { to: "/dashboard", label: "Dashboard" },
+    { to: "/interview", label: "Interview" },
+    { to: "/communication", label: "Communication" },
+    { to: "/voice-coach", label: "Voice Coach" },
+    { to: "/vr-interview", label: "VR Interview" },
+    { to: "/aptitude", label: "Aptitude" },
+    { to: "/coding", label: "Coding Test" },
+    { to: "/github-review", label: "Github Review" },
+    { to: "/roadmap", label: "Roadmap" },
+    { to: "/records", label: "Records" },
+    { to: "/profile", label: "Profile" },
+    { to: "/login", label: "Login" },
+    { to: "/signup", label: "Signup" },
+  ];
 
   return (
-    <nav className="sidebar">
+    <aside className="sidebar">
       <div className="sidebar-inner">
         <Link to="/" className="logo">
           <img src={logoImg} alt="PrepNova" className="logo-img" />
@@ -97,6 +103,6 @@ export default function Navbar() {
           )}
         </div>
       </div>
-    </nav>
+    </aside>
   );
 }
