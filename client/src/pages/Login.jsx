@@ -74,7 +74,8 @@ export default function Login() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/dashboard",
+        // Absolute URL: relative paths resolve against API base (3001), not the Vite app
+        callbackURL: `${window.location.origin}/dashboard`,
       });
     } catch (error) {
       showToast("Google login failed. Please try again.", "error");
