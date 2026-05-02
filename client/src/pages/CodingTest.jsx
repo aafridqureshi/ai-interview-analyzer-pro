@@ -2,8 +2,11 @@ import { useState } from "react";
 import axios from "axios";
 import Navbar from "../components/navbar";
 import { showToast } from "../components/Toast";
+import { useSession } from "../lib/auth-client";
 
 export default function CodingTest() {
+  const { data: session } = useSession();
+  const user = session?.user || JSON.parse(localStorage.getItem("studentUser") || "{}");
   const [code, setCode] = useState("");
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,12 +23,10 @@ export default function CodingTest() {
         ? "Your answer is too short. Try writing proper logic."
         : "Good attempt. Improve formatting, edge case handling, and explanation.";
 
-    const studentUser = JSON.parse(localStorage.getItem("studentUser"));
-
     setLoading(true);
     try {
       await axios.post("http://localhost:3001/api/coding", {
-        userEmail: studentUser?.email || "guest@example.com",
+        userEmail: user?.email || "guest@example.com",
         question,
         code,
         feedback,

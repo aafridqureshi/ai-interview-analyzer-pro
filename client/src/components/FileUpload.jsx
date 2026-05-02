@@ -3,10 +3,13 @@ import axios from "axios";
 import Loader from "./Loader";
 import ResultCard from "./ResultCard";
 import { showToast } from "./Toast";
+import { useSession } from "../lib/auth-client";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export default function FileUpload({ onSaved }) {
+  const { data: session } = useSession();
+  const user = session?.user || JSON.parse(localStorage.getItem("studentUser") || "{}");
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -37,8 +40,7 @@ export default function FileUpload({ onSaved }) {
       const formData = new FormData();
       formData.append("resume", file);
 
-      const studentUser = JSON.parse(localStorage.getItem("studentUser") || "null");
-      formData.append("userEmail", studentUser?.email || "guest@example.com");
+      formData.append("userEmail", user?.email || "guest@example.com");
 
       const res = await axios.post(`${API_URL}/upload`, formData);
       const resultData = res.data?.result || res.data?.data?.result;

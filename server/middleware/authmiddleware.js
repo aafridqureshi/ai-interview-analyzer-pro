@@ -1,26 +1,32 @@
-const jwt = require("jsonwebtoken");
+import { auth } from "../lib/auth.js";
+import { fromNodeHeaders } from "better-auth/node";
 
-module.exports = function (req, res, next) {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.status(401).json({
-      message: "No token provided"
-    });
-  }
-
+export default async function authMiddleware(req, res, next) {
   try {
-    const token = authHeader.split(" ")[1];
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!session) {
+      return res.status(401).json({
+        message: "Not authenticated",
+      });
+    }
 
-    req.user = decoded;
+    // Attach user and session info to request (compatible with existing code)
+    req.user = {
+      id: session.user.id,
+      email: session.user.email,
+      name: session.user.name,
+      role: session.user.role || "Student",
+    };
+    req.session = session.session;
 
     next();
-
   } catch (error) {
+    console.error("Auth middleware error:", error);
     return res.status(401).json({
-      message: "Invalid token"
+      message: "Invalid session",
     });
   }
-};
+}

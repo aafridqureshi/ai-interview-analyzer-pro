@@ -2,9 +2,11 @@ import { useMemo, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/navbar";
 import { showToast } from "../components/Toast";
+import { useSession } from "../lib/auth-client";
 
 export default function VoiceCoach() {
-  const studentUser = JSON.parse(localStorage.getItem("studentUser")) || {};
+  const { data: session } = useSession();
+  const user = session?.user || JSON.parse(localStorage.getItem("studentUser") || "{}");
 
   const questions = useMemo(
     () => [
@@ -158,7 +160,7 @@ export default function VoiceCoach() {
       setSaving(true);
 
       await axios.post("http://localhost:3001/api/interviews", {
-        userEmail: studentUser?.email || "guest@example.com",
+        userEmail: user?.email || "guest@example.com",
         questions,
         answers,
         feedback: generated.text,

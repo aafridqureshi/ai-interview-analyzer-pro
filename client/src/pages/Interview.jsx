@@ -3,8 +3,11 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/navbar";
 import { showToast } from "../components/Toast";
+import { useSession } from "../lib/auth-client";
 
 export default function Interview() {
+  const { data: session } = useSession();
+  const user = session?.user || JSON.parse(localStorage.getItem("studentUser") || "{}");
   const questions = [
     "Tell me about yourself.",
     "What are your strengths?",
@@ -32,14 +35,13 @@ export default function Interview() {
       return;
     }
 
-    const studentUser = JSON.parse(localStorage.getItem("studentUser"));
     const generatedFeedback =
       "Good start. Your answers should be more structured, confident, and specific. Try adding real project examples, measurable achievements, and clearer introductions.";
 
     setLoading(true);
     try {
       await axios.post("http://localhost:3001/api/interviews", {
-        userEmail: studentUser?.email || "guest@example.com",
+        userEmail: user?.email || "guest@example.com",
         questions,
         answers,
         feedback: generatedFeedback,

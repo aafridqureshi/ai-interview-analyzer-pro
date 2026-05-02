@@ -2,8 +2,11 @@ import { useState } from "react";
 import axios from "axios";
 import Navbar from "../components/navbar";
 import { showToast } from "../components/Toast";
+import { useSession } from "../lib/auth-client";
 
 export default function Aptitude() {
+  const { data: session } = useSession();
+  const user = session?.user || JSON.parse(localStorage.getItem("studentUser") || "{}");
   const questions = [
     {
       question: "What is 25% of 200?",
@@ -35,12 +38,10 @@ export default function Aptitude() {
       }
     });
 
-    const studentUser = JSON.parse(localStorage.getItem("studentUser"));
-
     setLoading(true);
     try {
       await axios.post("http://localhost:3001/api/aptitude", {
-        userEmail: studentUser?.email || "guest@example.com",
+        userEmail: user?.email || "guest@example.com",
         score: totalScore,
         total: questions.length,
       });

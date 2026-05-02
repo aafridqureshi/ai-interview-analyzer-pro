@@ -1,25 +1,26 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSession, signOut } from "../lib/auth-client";
+import { showToast } from "./Toast";
 import logoImg from "../assets/images/logo.png";
-import { NavLink } from "react-router-dom";
 
 export default function Navbar() {
-  const links = [
-    { to: "/", label: "Home" },
-    { to: "/resume", label: "Resume Analyzer" },
-    { to: "/dashboard", label: "Dashboard" },
-    { to: "/interview", label: "Interview" },
-    { to: "/communication", label: "Communication" },
-    { to: "/voice-coach", label: "Voice Coach" },
-    { to: "/vr-interview", label: "VR Interview" },
-    { to: "/aptitude", label: "Aptitude" },
-    { to: "/coding", label: "Coding Test" },
-    { to: "/github-review", label: "Github Review" },
-    { to: "/roadmap", label: "Roadmap" },
-    { to: "/records", label: "Records" },
-    { to: "/profile", label: "Profile" },
-    { to: "/login", label: "Login" },
-    { to: "/signup", label: "Signup" },
-  ];
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { data: session } = useSession();
+
+  const authenticated = !!session;
+  const activeLink = (path) => location.pathname === path;
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      localStorage.removeItem("studentUser");
+      showToast("Logged out successfully", "success");
+      navigate("/login");
+    } catch (error) {
+      showToast("Logout failed", "error");
+    }
+  };
 
   return (
     <aside className="sidebar">
@@ -44,11 +45,7 @@ export default function Navbar() {
             <p className="nav-note">Login first to unlock the full platform.</p>
           )}
 
-          {authenticated && !started && (
-            <p className="nav-note">Press Start on Home to unlock the platform.</p>
-          )}
-
-          {authenticated && started && (
+          {authenticated && (
             <>
               <Link to="/resume" className={`nav-link${activeLink("/resume") ? " active" : ""}`}>
                 <span className="nav-icon">📄</span> Resume
@@ -93,13 +90,11 @@ export default function Navbar() {
               <Link to="/profile" className={`nav-link${activeLink("/profile") ? " active" : ""}`}>
                 <span className="nav-icon">👤</span> Profile
               </Link>
-            </>
-          )}
 
-          {authenticated && started && (
-            <button className="nav-link nav-logout-btn" onClick={handleLogout}>
-              <span className="nav-icon">🚪</span> Logout
-            </button>
+              <button className="nav-link nav-logout-btn" onClick={handleLogout}>
+                <span className="nav-icon">🚪</span> Logout
+              </button>
+            </>
           )}
         </div>
       </div>

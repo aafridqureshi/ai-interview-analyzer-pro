@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/navbar";
+import { useSession } from "../lib/auth-client";
 
 const DAY_MS = 1000 * 60 * 60 * 24;
 
 export default function Roadmap() {
-  const studentUser = JSON.parse(localStorage.getItem("studentUser")) || {};
-  const email = studentUser.email || "";
+  const { data: session } = useSession();
+  const user = session?.user || JSON.parse(localStorage.getItem("studentUser") || "{}");
+  const email = user.email || "";
 
   const [examDate, setExamDate] = useState(() => window.localStorage.getItem("studyPlannerExamDate") || "");
   const [syllabusCoverage, setSyllabusCoverage] = useState(() => Number(window.localStorage.getItem("studyPlannerSyllabusCoverage") || 60));
