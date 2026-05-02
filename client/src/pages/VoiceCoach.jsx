@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/navbar";
+import { showToast } from "../components/Toast";
+import { useSession } from "../lib/auth-client";
 
 export default function VoiceCoach() {
-  const studentUser = JSON.parse(localStorage.getItem("studentUser")) || {};
+  const { data: session } = useSession();
+  const user = session?.user || JSON.parse(localStorage.getItem("studentUser") || "{}");
 
   const questions = useMemo(
     () => [
@@ -29,7 +32,7 @@ export default function VoiceCoach() {
 
   const speakQuestion = () => {
     if (!("speechSynthesis" in window)) {
-      alert("Text-to-speech is not supported in this browser.");
+      showToast("Text-to-speech is not supported in this browser.", "warning");
       return;
     }
 
@@ -44,7 +47,7 @@ export default function VoiceCoach() {
 
   const startListening = () => {
     if (!SpeechRecognition) {
-      alert("Speech recognition is not supported in this browser.");
+      showToast("Speech recognition is not supported in this browser.", "warning");
       return;
     }
 
@@ -79,14 +82,14 @@ export default function VoiceCoach() {
 
   const saveCurrentAnswer = () => {
     if (!currentTranscript.trim()) {
-      alert("Please speak your answer first.");
+      showToast("Please speak your answer first.", "warning");
       return;
     }
 
     const updated = [...answers];
     updated[currentQuestion] = currentTranscript.trim();
     setAnswers(updated);
-    alert("Answer saved");
+    showToast("Answer saved!", "success");
   };
 
   const nextQuestion = () => {
@@ -147,7 +150,7 @@ export default function VoiceCoach() {
     const validAnswers = answers.filter((a) => a.trim() !== "");
 
     if (validAnswers.length === 0) {
-      alert("Please record at least one answer before submitting.");
+      showToast("Please record at least one answer before submitting.", "warning");
       return;
     }
 
@@ -157,7 +160,7 @@ export default function VoiceCoach() {
       setSaving(true);
 
       await axios.post("http://localhost:3001/api/interviews", {
-        userEmail: studentUser?.email || "guest@example.com",
+        userEmail: user?.email || "guest@example.com",
         questions,
         answers,
         feedback: generated.text,
@@ -168,7 +171,7 @@ export default function VoiceCoach() {
       setFeedback(`Score: ${generated.score}/100. ${generated.text}`);
       setSubmitted(true);
     } catch (error) {
-      alert(error.response?.data?.error || "Failed to save voice interview");
+      showToast(error.response?.data?.message || error.response?.data?.error || "Failed to save voice interview", "error");
     } finally {
       setSaving(false);
     }

@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/navbar";
+import { useSession } from "../lib/auth-client";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export default function Records() {
-  const studentUser = JSON.parse(localStorage.getItem("studentUser")) || {};
-  const email = studentUser.email;
+  const { data: session } = useSession();
+  const user = session?.user || JSON.parse(localStorage.getItem("studentUser") || "{}");
+  const email = user.email;
 
   const [resumeRecords, setResumeRecords] = useState([]);
   const [interviewRecords, setInterviewRecords] = useState([]);

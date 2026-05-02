@@ -5,6 +5,8 @@ import Home from "./pages/Home";
 import ResumeAnalyzer from "./pages/ResumeAnalyser";
 import Dashboard from "./pages/Dashboard";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Interview from "./pages/Interview";
 import VoiceCoach from "./pages/VoiceCoach";
 import Aptitude from "./pages/Aptitude";
@@ -24,6 +26,8 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route
         path="/dashboard"

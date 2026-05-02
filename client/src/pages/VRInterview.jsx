@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Navbar from "../components/navbar";
+import { showToast } from "../components/Toast";
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders";
 
@@ -274,7 +275,7 @@ export default function VRInterview() {
       await sceneRef.current.createDefaultXRExperienceAsync();
       await navigator.xr.requestSession("immersive-vr");
     } catch {
-      alert("VR session not available. Ensure WebXR is supported.");
+      showToast("VR session not available. Ensure WebXR is supported.", "warning");
     }
   };
 
@@ -296,7 +297,7 @@ export default function VRInterview() {
         }
       } catch (error) {
         console.error("Camera access denied", error);
-        alert("Camera access required for VR interview experience.");
+        showToast("Camera access required for VR interview experience.", "warning");
       }
     };
 

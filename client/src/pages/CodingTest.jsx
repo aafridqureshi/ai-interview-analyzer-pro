@@ -1,30 +1,45 @@
 import { useState } from "react";
 import axios from "axios";
 import Navbar from "../components/navbar";
+import { showToast } from "../components/Toast";
+import { useSession } from "../lib/auth-client";
 
 export default function CodingTest() {
+  const { data: session } = useSession();
+  const user = session?.user || JSON.parse(localStorage.getItem("studentUser") || "{}");
   const [code, setCode] = useState("");
   const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
   const question = "Write logic to reverse a string.";
 
   const runMockCheck = async () => {
+    if (!code.trim()) {
+      showToast("Please write your code before submitting.", "warning");
+      return;
+    }
+
     const feedback =
       code.trim().length < 20
         ? "Your answer is too short. Try writing proper logic."
         : "Good attempt. Improve formatting, edge case handling, and explanation.";
 
-    const studentUser = JSON.parse(localStorage.getItem("studentUser"));
-
+    setLoading(true);
     try {
       await axios.post("http://localhost:3001/api/coding", {
-        userEmail: studentUser?.email || "guest@example.com",
+        userEmail: user?.email || "guest@example.com",
         question,
         code,
         feedback,
       });
       setResult(feedback);
+      showToast("Code submitted and reviewed!", "success");
     } catch (error) {
-      alert(error.response?.data?.error || "Failed to save coding result");
+      showToast(
+        error.response?.data?.message || error.response?.data?.error || "Failed to save coding result. Please try again.",
+        "error"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,7 +49,7 @@ export default function CodingTest() {
 
       <section className="section page-hero">
         <div className="hero-content">
-          <div className="label-pill">Code Practice</div>
+          <div className="label-pill">💻 Code Practice</div>
           <h1 className="section-title">Coding Test Practice</h1>
           <p className="section-subtitle">
             Write your code and get instant feedback on completeness, style, and
@@ -65,14 +80,14 @@ export default function CodingTest() {
           <h3 style={{ marginBottom: "14px" }}>Question</h3>
           <p style={{ marginBottom: "24px", color: "#4f6f8f" }}>{question}</p>
           <textarea
-            className="auth-input"
+            className="auth-input code-textarea"
             rows="10"
             placeholder="Write your code here..."
             value={code}
             onChange={(e) => setCode(e.target.value)}
           />
-          <button className="btn" onClick={runMockCheck}>
-            Check Answer
+          <button className="btn" onClick={runMockCheck} disabled={loading}>
+            {loading ? "Checking..." : "Check Answer"}
           </button>
         </div>
 

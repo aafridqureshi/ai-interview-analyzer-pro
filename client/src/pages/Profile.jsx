@@ -1,31 +1,49 @@
 import Navbar from "../components/navbar";
+import { useSession } from "../lib/auth-client";
+import logoImg from "../assets/images/logo.png";
 
 export default function Profile() {
-  const studentUser = JSON.parse(localStorage.getItem("studentUser")) || {};
+  const { data: session } = useSession();
+  const user = session?.user || JSON.parse(localStorage.getItem("studentUser") || "{}");
 
   return (
     <div className="page-container tech-page profile-page">
       <Navbar />
 
       <section className="section">
-        <h1 className="section-title">Student Profile</h1>
-        <p className="section-subtitle">
-          View your saved profile details and current learning direction.
-        </p>
+        <div className="profile-header">
+          <img src={logoImg} alt="PrepNova" className="profile-logo" />
+          <h1 className="section-title">Student Profile</h1>
+          <p className="section-subtitle">
+            View your saved profile details and current learning direction.
+          </p>
+        </div>
 
-        <div className="card" style={{ maxWidth: "700px", margin: "0 auto" }}>
-          <p style={{ marginBottom: "14px", color: "#4f6f8f" }}>
-            <strong>Name:</strong> {studentUser.name || "Not set"}
-          </p>
-          <p style={{ marginBottom: "14px", color: "#4f6f8f" }}>
-            <strong>Email:</strong> {studentUser.email || "Not set"}
-          </p>
-          <p style={{ marginBottom: "14px", color: "#4f6f8f" }}>
-            <strong>Role:</strong> {studentUser.role || "Not set"}
-          </p>
-          <p style={{ color: "#4f6f8f" }}>
-            <strong>Status:</strong> Preparing for industry readiness
-          </p>
+        <div className="card profile-card" style={{ maxWidth: "700px", margin: "0 auto" }}>
+          <div className="profile-avatar">
+            <span className="avatar-initials">
+              {(user.name || "S").charAt(0).toUpperCase()}
+            </span>
+          </div>
+
+          <div className="profile-fields">
+            <div className="profile-field">
+              <span className="profile-label">Name</span>
+              <span className="profile-value">{user.name || "Not set"}</span>
+            </div>
+            <div className="profile-field">
+              <span className="profile-label">Email</span>
+              <span className="profile-value">{user.email || "Not set"}</span>
+            </div>
+            <div className="profile-field">
+              <span className="profile-label">Target Role</span>
+              <span className="profile-value">{user.role || "Not set"}</span>
+            </div>
+            <div className="profile-field">
+              <span className="profile-label">Status</span>
+              <span className="profile-badge">Preparing for industry readiness</span>
+            </div>
+          </div>
         </div>
       </section>
     </div>
